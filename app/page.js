@@ -19,6 +19,11 @@ export default function TodoList() {
 
   // TODOを追加
   async function addTodo() {
+    // 楽観的更新：ローカルのtodosに即座に追加
+  const tempId = Date.now().toString();
+  const optimisticTodo = { id: tempId, title: newTodo, completed: false };
+  setTodos([...todos, optimisticTodo]);
+  setNewTodo("");
     if (!newTodo.trim()) return;
     // POSTリクエストでタスクを追加
     await fetch("/api/todos", {
@@ -26,36 +31,34 @@ export default function TodoList() {
       body: JSON.stringify({ title: newTodo }),
       headers: { "Content-Type": "application/json" },
     });
-    await fetchTodos();
-    //入力フォームクリア
-    setNewTodo("");
   }
 
   // TODOの状態を更新
   async function toggleComplete(id, completed) {
+    //ローカルの状態を更新
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !completed } : todo
+      )
+    );
     // PATCHリクエストで状態を更新
     await fetch("/api/todos", {
       method: "PATCH",
       body: JSON.stringify({ id, completed: !completed }),
       headers: { "Content-Type": "application/json" },
     });
-    // ローカルのTODOを更新
-    setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, completed: !completed } : todo))
-    );
-    await fetchTodos();
   }
 
   //TODOを削除
   async function deleteTodo(id) {
+    // ローカルのTODOを削除
+    setTodos(todos.filter((todo) => todo.id !== id));
     // DELETEリクエストでタスクを削除
     await fetch("/api/todos", {
       method: "DELETE",
       body: JSON.stringify({ id }),
       headers: { "Content-Type": "application/json" },
     });
-    // ローカルのTODOを削除
-    setTodos(todos.filter((todo) => todo.id !== id));
   }
 
   return (

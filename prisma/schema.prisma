@@ -11,9 +11,17 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Todo {
+  id        String  @id @default(uuid())
+  title     String
+  completed Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Todo2 {
   id        String  @id @default(uuid())
   title     String
   completed Boolean @default(false)
