@@ -22,9 +22,9 @@ export default function TodoList() {
     // 楽観的更新：ローカルのtodosに即座に追加
   const tempId = Date.now().toString();
   const optimisticTodo = { id: tempId, title: newTodo, completed: false };
+  if (!newTodo.trim()) return;
   setTodos([...todos, optimisticTodo]);
   setNewTodo("");
-    if (!newTodo.trim()) return;
     // POSTリクエストでタスクを追加
     await fetch("/api/todos", {
       method: "POST",
